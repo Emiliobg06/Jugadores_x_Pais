@@ -1,6 +1,8 @@
 'use client';
 import React, { useEffect, useState } from "react";
 import ReactCountryFlag from "react-country-flag";
+import Image from "next/image";
+
 
 type Nationality = {
   country: { name: string };
@@ -27,10 +29,10 @@ export default function App() {
       .then((json) => {
         // Flatten all countries -> leagues into one object
         const allLeagues: Record<string, LeagueData> = {};
-        Object.values(json).forEach((countryLeagues: any) => {
-          (countryLeagues as LeagueData[]).forEach((league) => {
+        Object.values(json).forEach((countryLeagues: unknown) => {
+          (countryLeagues as LeagueData[]).forEach((league: LeagueData) => {
             if (league.sufficientPlayers) {
-              allLeagues[league.tournament.country.name + "_" + league.tournament.id] = league;
+              allLeagues[`${league.tournament.country.name}_${league.tournament.id}`] = league;
             }
           });
         });
@@ -51,11 +53,14 @@ export default function App() {
 
   if (ukFlags[countryName]) {
     return (
-      <img
-        src={ukFlags[countryName]}
-        alt={countryName}
-        style={{ width: "100%", height: "100%", objectFit: "cover" }}
-      />
+    <Image
+    src={ukFlags[countryName]}
+    alt={countryName}
+    width={24}
+    height={24}
+    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+    />
+
     );
   }
 
