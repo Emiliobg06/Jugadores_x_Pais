@@ -116,14 +116,14 @@ export default function App() {
         {/* Selector */}
         <div className="mb-6">
           <label className="block mb-2 font-medium text-gray-600">
-            Selecciona un país / liga
+            Select a country or a league
           </label>
           <select
             className="border border-sky-200 p-2 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-400"
             value={selectedLeague}
             onChange={(e) => setSelectedLeague(e.target.value)}
           >
-            <option value="">-- Selecciona una liga --</option>
+            <option value="">Select a league</option>
             {leagues.map((leagueKey) => (
               <option key={leagueKey} value={leagueKey}>
                 {data[leagueKey].tournament.name} ({data[leagueKey].tournament.country.name})
@@ -145,6 +145,9 @@ export default function App() {
           </div>
         )}
       </div>
+      <label className="block mb-2 font-medium text-gray-600">
+            Created by Emilio Barragán
+          </label>
     </div>
   );
 }
