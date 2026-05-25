@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import ReactCountryFlag from "react-country-flag";
 import Image from "next/image";
 
+
 type Nationality = {
   country: { name: string };
   playerCount: number;
@@ -18,89 +19,11 @@ type LeagueData = {
   updatedAt: string;
 };
 
-const GEMINI_API_KEY = "AIzaSyA4sirPdYgcNstP0RLLBOgl7fIASdJrPwQ";
-
 export default function App() {
   const [data, setData] = useState<Record<string, LeagueData>>({});
   const [selectedLeague, setSelectedLeague] = useState<string>("");
-  const [question, setQuestion] = useState("");
-  const [answer, setAnswer] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  const askGemini = async () => {
-    if (!question) {
-      setAnswer("Por favor escribe una pregunta");
-      return;
-    }
-
-    if (Object.keys(data).length === 0) {
-      setAnswer("Los datos aún se están cargando. Espera un momento...");
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      // Convertimos tu data a texto entendible
-      const context = JSON.stringify(data);
-
-      const prompt = `
-Eres un analista de datos de fútbol.
-
-Reglas IMPORTANTES:
-- SOLO puedes responder usando la información proporcionada en el JSON.
-- NO inventes datos.
-- Responde en el idioma que te pregunten.
-
-Datos:
-${context}
-
-Pregunta:
-${question}
-`;
-console.log("URL:", `https://generativelanguage.googleapis.com/v1/models/gemini-3.5-flash:generateContent`);
-      const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1/models/gemini-3.5-flash:generateContent?key=${GEMINI_API_KEY}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            contents: [
-              {
-                parts: [{ text: prompt }],
-              },
-            ],
-          }),
-        }
-      );
-
-      const json = await res.json();
-
-      // Verificar si hay error en la respuesta
-      if (json.error) {
-        console.error("Error de Gemini:", json.error);
-        setAnswer(`Error: ${json.error.message}`);
-        setLoading(false);
-        return;
-      }
-
-      const text =
-        json?.candidates?.[0]?.content?.parts?.[0]?.text ||
-        "No se pudo obtener respuesta";
-
-      setAnswer(text);
-    } catch (err) {
-      console.error("Error al consultar Gemini:", err);
-      setAnswer(`Error: ${err instanceof Error ? err.message : "Error desconocido"}`);
-    }
-
-    setLoading(false);
-  };
 
   useEffect(() => {
-    console.log("URL:", `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent`);
     fetch("https://api-jugadores-8wlm.onrender.com/report")
       .then((res) => res.json())
       .then((json) => {
@@ -225,33 +148,6 @@ console.log("URL:", `https://generativelanguage.googleapis.com/v1/models/gemini-
       <label className="block mb-2 font-medium text-gray-600">
             Created by Emilio Barragán
           </label>
-          {/* Chatbox */}
-<div className="fixed bottom-6 right-6 w-80 bg-white shadow-xl rounded-xl border border-gray-200 p-4">
-  <h3 className="font-semibold mb-2 text-gray-700">
-    Pregunta sobre jugadores
-  </h3>
-
-  <input
-    type="text"
-    placeholder="Ej: ¿Cuántos mexicanos hay en España?"
-    value={question}
-    onChange={(e) => setQuestion(e.target.value)}
-    className="w-full border p-2 rounded mb-2 text-sm"
-  />
-
-  <button
-    onClick={askGemini}
-    className="w-full bg-sky-500 text-white py-2 rounded hover:bg-sky-600 transition"
-  >
-    {loading ? "Pensando..." : "Preguntar"}
-  </button>
-
-  {answer && (
-    <div className="mt-3 text-sm text-gray-700 bg-gray-50 p-2 rounded max-h-40 overflow-y-auto">
-      {answer}
-    </div>
-  )}
-</div>
     </div>
   );
 }
